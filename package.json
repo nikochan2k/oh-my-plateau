@@ -1,6 +1,6 @@
 {
   "name": "oh-my-plateau",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Flip latitude and longitude of PLATEAU CityGML.",
   "main": "lib/index.js",
   "bin": {
