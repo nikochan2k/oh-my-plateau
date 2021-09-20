@@ -4,32 +4,26 @@ import { readFileSync, writeFileSync } from "fs";
 import { glob } from "glob";
 import { extname } from "path";
 import { Command } from "commander";
-const program = new Command();
+const program = new Command("oh-my-plateau");
 program
   .usage("[options] <filePattern>")
-  .option("-o --overwrite", "overrite existing file")
-  .option("-m --minimize", "minimize file size by removing spaces");
+  .option("-o, --overwrite", "overrite existing file")
+  .option("-m, --minimize", "minimize file size by removing spaces");
+program.parse(process.argv);
 
-if (!program.args) {
+if (program.args.length === 0) {
   program.help();
   process.exit(1);
 }
 
-const EasySax = require("easysax");
-const m = (text: string) => {
-  if (!text) {
-    return "";
-  }
-  if (program["minimize"]) {
-    return text.trim();
-  }
-  return text;
-};
+const options = program.opts();
 
-const pattern = process.argv[2];
+const EasySax = require("easysax");
+
+const pattern = program.args[0];
 glob(pattern, (err, matches) => {
   if (err) {
-    program.help();
+    console.warn("Illegal glob file pattern: " + pattern);
     process.exit(1);
   }
 
@@ -37,7 +31,7 @@ glob(pattern, (err, matches) => {
     try {
       const xml = readFileSync(path, "utf-8");
       const corrected = parse(xml);
-      if (!program["overwrite"]) {
+      if (!options.overwrite) {
         const extension = extname(path);
         const withoutExt = path.substr(0, path.length - extension.length);
         path = withoutExt + "_mod" + extension;
@@ -51,6 +45,7 @@ glob(pattern, (err, matches) => {
 });
 
 const COORDINATES = /^\s*-?\d+(\.\d+)?(\s+-?\d+(\.\d+))*\s*$/;
+const ALL_SPACES = /^\s+$/;
 
 function parse(xml: string) {
   const parser = new EasySax();
@@ -60,12 +55,12 @@ function parse(xml: string) {
   parser.on(
     "startNode",
     (elementName, getAttr, unEntities, isTagEnd, getStringNode) => {
-      chunks.push(m(getStringNode()));
+      chunks.push(getStringNode());
     }
   );
 
   parser.on("endNode", (elementName, unEntities, isTagStart, getStringNode) => {
-    chunks.push(m(getStringNode()));
+    chunks.push(getStringNode());
   });
 
   parser.on("textNode", (text: string) => {
@@ -84,12 +79,20 @@ function parse(xml: string) {
       }
       chunks.push(coords.join(" "));
     } else {
-      chunks.push(text);
+      if (options.minimize) {
+        if (ALL_SPACES.test(text)) {
+          chunks.push("\n");
+        } else {
+          chunks.push(text.trim());
+        }
+      } else {
+        chunks.push(text);
+      }
     }
   });
 
   parser.on("question", (text) => {
-    chunks.push(m(text));
+    chunks.push(text);
   });
 
   parser.on("error", (err) => {

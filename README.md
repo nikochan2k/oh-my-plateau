@@ -9,8 +9,13 @@ https://www.geospatial.jp/ckan/organization/toshi
 
 # Usage
 
-    npx oh-my-plateau <glob_pattern>
+    npx oh-my-plateau [options] <filePattern>
+
+Options:
+-o, --overwrite overrite existing file
+-m, --minimize minimize file size by removing spaces
+-h, --help display help for command
 
 e.g.
 
-    npm oh-my-plateau ./**/*.gml
+    npx oh-my-plateau ./**/*.gml
