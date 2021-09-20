@@ -6,7 +6,7 @@ module.exports = {
   target: "node",
   output: {
     filename: "oh-my-plateau.js",
-    path: __dirname + "/lib",
+    path: __dirname + "/dist",
   },
   externalsPresets: { node: true },
 };
