@@ -37,6 +37,7 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "commander": "^8.2.0",
     "easysax": "^0.3.2",
     "glob": "^7.1.7"
   }

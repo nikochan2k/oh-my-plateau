@@ -3,26 +3,50 @@
 import { readFileSync, writeFileSync } from "fs";
 import { glob } from "glob";
 import { extname } from "path";
-const EasySax = require("easysax");
+import { Command } from "commander";
+const program = new Command();
+program
+  .usage("[options] <filePattern>")
+  .option("-o --overwrite", "overrite existing file")
+  .option("-m --minimize", "minimize file size by removing spaces");
 
-if (process.argv.length <= 2) {
-  console.error("Usage: node oh-my-plateau <filePattern>");
+if (!program.args) {
+  program.help();
   process.exit(1);
 }
+
+const EasySax = require("easysax");
+const m = (text: string) => {
+  if (!text) {
+    return "";
+  }
+  if (program["minimize"]) {
+    return text.trim();
+  }
+  return text;
+};
 
 const pattern = process.argv[2];
 glob(pattern, (err, matches) => {
   if (err) {
-    console.error(err);
+    program.help();
     process.exit(1);
   }
-  for (const path of matches) {
-    const xml = readFileSync(path, "utf-8");
-    const corrected = parse(xml);
-    const extension = extname(path);
-    const withoutExt = path.substr(0, path.length - extension.length);
-    const newPath = withoutExt + "_mod" + extension;
-    writeFileSync(newPath, corrected, "utf-8");
+
+  for (let path of matches) {
+    try {
+      const xml = readFileSync(path, "utf-8");
+      const corrected = parse(xml);
+      if (!program["overwrite"]) {
+        const extension = extname(path);
+        const withoutExt = path.substr(0, path.length - extension.length);
+        path = withoutExt + "_mod" + extension;
+      }
+      writeFileSync(path, corrected, "utf-8");
+      console.log('Processed "' + path + '"');
+    } catch (e) {
+      console.log('Error "' + path + '":\n' + e);
+    }
   }
 });
 
@@ -36,12 +60,12 @@ function parse(xml: string) {
   parser.on(
     "startNode",
     (elementName, getAttr, unEntities, isTagEnd, getStringNode) => {
-      chunks.push(getStringNode());
+      chunks.push(m(getStringNode()));
     }
   );
 
   parser.on("endNode", (elementName, unEntities, isTagStart, getStringNode) => {
-    chunks.push(getStringNode());
+    chunks.push(m(getStringNode()));
   });
 
   parser.on("textNode", (text: string) => {
@@ -65,7 +89,7 @@ function parse(xml: string) {
   });
 
   parser.on("question", (text) => {
-    chunks.push(text);
+    chunks.push(m(text));
   });
 
   parser.on("error", (err) => {
