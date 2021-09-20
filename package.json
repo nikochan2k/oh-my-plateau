@@ -1,4 +1,25 @@
 {
+  "name": "oh-my-plateau",
+  "version": "0.0.0",
+  "description": "Flip latitude and longitude of PLATEAU CityGML.",
+  "main": "lib/oh-my-plateau.js",
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "plateau",
+    "citygml"
+  ],
+  "scripts": {
+    "clean": "rimraf ./lib",
+    "tsc": "tsc",
+    "webpack": "webpack",
+    "build": "npm-run-all clean tsc webpack",
+    "npm-version": "npm version patch",
+    "npm-publish": "npm publish",
+    "release": "npm-run-all build npm-version npm-publish",
+    "test": "jest --runInBand"
+  },
   "devDependencies": {
     "@types/glob": "^7.1.4",
     "@types/jest": "^27.0.1",
@@ -7,10 +28,12 @@
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
     "ts-jest": "^27.0.5",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "webpack": "^5.53.0",
+    "webpack-cli": "^4.8.0"
   },
   "dependencies": {
-    "glob": "^7.1.7",
-    "saxophone-ts": "^0.6.4"
+    "easysax": "^0.3.2",
+    "glob": "^7.1.7"
   }
 }
