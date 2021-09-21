@@ -11,11 +11,12 @@ https://www.geospatial.jp/ckan/organization/toshi
 
     npx oh-my-plateau [options] <filePattern>
 
-Options:
--o, --overwrite overrite existing file
--m, --minimize minimize file size by removing spaces
--h, --help display help for command
+**オプション**
 
-例)
+- -o, --overwrite overrite existing file
+- -m, --minimize minimize file size by removing spaces
+- -h, --help display help for command
+
+**例)**
 
     npx oh-my-plateau ./**/*.gml
